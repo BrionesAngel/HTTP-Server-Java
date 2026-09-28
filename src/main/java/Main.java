@@ -1,7 +1,9 @@
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 
 public class Main {
   public static void main(String[] args) {
@@ -20,7 +22,14 @@ public class Main {
 
       Socket socket = serverSocket.accept(); // Wait for connection from client.
       OutputStream outputStream = socket.getOutputStream();
-      outputStream.write("HTTP/1.1 200 OK\r\n\r\n".getBytes());
+      InputStream inputStream = socket.getInputStream();
+      String request = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
+      String[] parts = request.split(" ");
+      String path = parts[1];
+      if (path.equals("/"))
+        outputStream.write("HTTP/1.1 200 OK\r\n\r\n".getBytes());
+      else
+        outputStream.write("HTTP/1.1 404 Not Found\r\n\r\n".getBytes());
       System.out.println("accepted new connection");
     } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
