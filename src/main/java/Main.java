@@ -53,14 +53,20 @@ public class Main {
       String path = parts[1];
       System.out.println("path: " + path);
 
-      if (path.equals("/")) {
-        outputStream.write("HTTP/1.1 200 OK\r\n\r\n".getBytes());
-        outputStream.flush();
-      } else {
-        outputStream.write("HTTP/1.1 404 Not Found\r\n\r\n".getBytes());
-        outputStream.flush();
+      HttpResponse response;
 
+      if (path.equals("/")) {
+        response = HttpResponse.ok("");
+      } else if (path.startsWith("/echo/")) {
+        String body = path.substring(6);
+        response = HttpResponse.ok(body);
+      } else {
+        response = HttpResponse.notFound();
       }
+
+      outputStream.write(response.toBytes());
+      outputStream.flush();
+
       System.out.println("accepted new connection");
     } catch (
 
