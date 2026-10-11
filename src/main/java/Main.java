@@ -11,7 +11,7 @@ public class Main {
   public static void main(String[] args) {
     // You can use print statements as follows for debugging, they'll be visible
     // when running tests.
-    System.out.println("Logs from your program will appear here!");
+    System.out.println("Logs from your program will appear here! \n");
 
     // TODO: Uncomment the code below to pass the first stage
 
@@ -45,13 +45,42 @@ public class Main {
       }
 
       String request = buffer.toString(StandardCharsets.UTF_8);
-      System.out.println("request: " + request);
 
-      String[] parts = request.split(" ");
-      System.out.println("request parts: " + Arrays.toString(parts));
+      String[] parts = request.split("\r\n");
+      System.out.println("\n--- REQUEST ---");
+      System.out.println("request parts size: " + parts.length);
+      System.out.println(Arrays.toString(parts));
 
-      String path = parts[1];
+      String[] method = parts[0].split(" ");
+
+      String met = method[0];
+      System.out.println("method: " + met);
+
+      String path = method[1];
       System.out.println("path: " + path);
+
+      String httpVersion = method[2];
+      System.out.println("httpVersion: " + httpVersion);
+
+      String[] host = new String[2];
+      String[] accept = new String[2];
+      String[] userAgent = new String[2];
+
+      for (int i = 1; i < parts.length; i++) {
+        if (parts[i].startsWith("Host:")) {
+          host = parts[i].split(": ", 2);
+          System.out.println(Arrays.toString(host));
+        }
+        if (parts[i].startsWith("Accept:")) {
+          accept = parts[i].split(": ", 2);
+          System.out.println(Arrays.toString(accept));
+        }
+        if (parts[i].startsWith("User-Agent:")) {
+          userAgent = parts[i].split(": ", 2);
+          System.out.println(Arrays.toString(userAgent));
+        }
+      }
+      System.out.println("--- REQUEST ---\n");
 
       HttpResponse response;
 
@@ -59,6 +88,9 @@ public class Main {
         response = HttpResponse.ok("");
       } else if (path.startsWith("/echo/")) {
         String body = path.substring(6);
+        response = HttpResponse.ok(body);
+      } else if (path.startsWith("/user-agent")) {
+        String body = userAgent[1];
         response = HttpResponse.ok(body);
       } else {
         response = HttpResponse.notFound();
