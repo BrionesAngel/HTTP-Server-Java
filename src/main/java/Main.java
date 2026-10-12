@@ -13,8 +13,6 @@ public class Main {
     // when running tests.
     System.out.println("Logs from your program will appear here! \n");
 
-    // TODO: Uncomment the code below to pass the first stage
-
     try {
       ServerSocket serverSocket = new ServerSocket(4221);
 
@@ -22,9 +20,22 @@ public class Main {
       // ensures that we don't run into 'Address already in use' errors
       serverSocket.setReuseAddress(true);
 
-      Socket socket = serverSocket.accept(); // Wait for connection from client.
-      System.out.println("socket: " + socket);
+      while (true) {
+        Socket socket = serverSocket.accept(); // Wait for connection from client.
+        System.out.println("socket: " + socket);
 
+        Thread.startVirtualThread(() -> handleRequest(socket));
+        System.out.println("accepted new connection");
+      }
+
+    } catch (IOException e) {
+      System.out.println("IOException: " + e.getMessage());
+    }
+
+  }
+
+  private static void handleRequest(Socket socket) {
+    try (socket) {
       OutputStream outputStream = socket.getOutputStream();
       InputStream inputStream = socket.getInputStream();
 
@@ -80,7 +91,7 @@ public class Main {
           System.out.println(Arrays.toString(userAgent));
         }
       }
-      System.out.println("--- REQUEST ---\n");
+      System.out.println("--- --- ---\n");
 
       HttpResponse response;
 
@@ -99,11 +110,10 @@ public class Main {
       outputStream.write(response.toBytes());
       outputStream.flush();
 
-      System.out.println("accepted new connection");
-    } catch (
-
-    IOException e) {
+    } catch (IOException e) {
       System.out.println("IOException: " + e.getMessage());
     }
+
   }
+
 }
