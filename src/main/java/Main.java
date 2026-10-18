@@ -5,6 +5,9 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.NoSuchFileException;
 import java.util.Arrays;
 
 public class Main {
@@ -99,10 +102,20 @@ public class Main {
         response = HttpResponse.ok("");
       } else if (path.startsWith("/echo/")) {
         String body = path.substring(6);
-        response = HttpResponse.ok(body);
+        response = HttpResponse.ok(ContentType.TEXT_PLAIN, body);
       } else if (path.startsWith("/user-agent")) {
         String body = userAgent[1];
-        response = HttpResponse.ok(body);
+        response = HttpResponse.ok(ContentType.TEXT_PLAIN, body);
+      } else if (path.startsWith("/files")) {
+        String directory = "/tmp/";
+        String fileName = path.substring(6);
+        try {
+          String content = Files.readString(Path.of(directory, fileName));
+          response = HttpResponse.ok(ContentType.APPLICATION_OCTET_STREAM, content);
+        } catch (NoSuchFileException e) {
+          response = HttpResponse.notFound();
+        }
+
       } else {
         response = HttpResponse.notFound();
       }

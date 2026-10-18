@@ -1,21 +1,24 @@
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Optional;
 
 public record HttpResponse(
     int statusCode,
     String reason,
     Map<String, String> headers,
     String body) {
-  public static HttpResponse ok(String body) {
+  public static HttpResponse ok(ContentType contentType, String body) {
     return new HttpResponse(
         200,
         "OK",
         Map.of(
-            "Content-Type",
-            "text/plain",
-            "Content-Length",
-            String.valueOf(body.length())),
+            "Content-Type", contentType.value(),
+            "Content-Length", String.valueOf(body.getBytes(StandardCharsets.UTF_8).length)),
         body);
+  }
+
+  public static HttpResponse ok(String body) {
+    return ok(ContentType.TEXT_PLAIN, body);
   }
 
   public static HttpResponse notFound() {
